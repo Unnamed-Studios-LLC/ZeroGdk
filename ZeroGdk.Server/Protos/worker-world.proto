@@ -1,0 +1,12 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "ZeroGdk.Server.Grpc";
+
+package world;
+
+import "common-world.proto";
+
+service WorkerWorld {
+  rpc Create (CreateWorldRequest) returns (CreateWorldResponse);
+  rpc Destroy (DestroyWorldRequest) returns (DestroyWorldResponse);
+}

@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Protobuf Include="Protos\common-*.proto" ProtoRoot="Protos" Access="Public" GrpcServices="Both" AdditionalImportDirs="%(Protobuf.AdditionalImportDirs);$(Protobuf_IncludePath)" />
+    <Protobuf Include="Protos\coord-*.proto" ProtoRoot="Protos" Access="Internal" GrpcServices="Both" AdditionalImportDirs="%(Protobuf.AdditionalImportDirs);$(Protobuf_IncludePath)" />
+    <Protobuf Include="Protos\worker-*.proto" ProtoRoot="Protos" Access="Internal" GrpcServices="Both" AdditionalImportDirs="%(Protobuf.AdditionalImportDirs);$(Protobuf_IncludePath)" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Library\Arch\src\Arch\Arch.csproj" />
+    <ProjectReference Include="..\ZeroGdk.Core\ZeroGdk.Core.csproj" />
+  </ItemGroup>
+
+</Project>

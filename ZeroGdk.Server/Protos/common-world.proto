@@ -1,0 +1,36 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "ZeroGdk.Server";
+
+import "google/protobuf/any.proto";
+
+package world;
+
+enum WorldResult {
+	Success = 0;
+	InternalError = 1;
+    WorldIdTaken = 2;
+	FactoryFailure = 3;
+	WorldNotFound = 5;
+	RouteNotFound = 6;
+	FactoryQueueFull = 7;
+}
+
+message CreateWorldRequest {
+	string route = 1;
+	uint32 world_id = 2;
+	google.protobuf.Any data = 3;
+}
+
+message CreateWorldResponse {
+	WorldResult result = 1;
+	uint32 world_id = 2;
+}
+
+message DestroyWorldRequest {
+	uint32 world_id = 1;
+}
+
+message DestroyWorldResponse {
+	WorldResult result = 1;
+}

@@ -1,0 +1,11 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "ZeroGdk.Server.Grpc";
+
+package connection;
+
+import "common-connection.proto";
+
+service WorkerConnection {
+  rpc Open (OpenConnectionRequest) returns (OpenConnectionResponse);
+}

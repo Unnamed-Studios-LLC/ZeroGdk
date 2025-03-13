@@ -1,0 +1,9 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "ZeroGdk.Demo";
+
+package world;
+
+message StaticWorldData {
+	string map_file_name = 1;
+}
