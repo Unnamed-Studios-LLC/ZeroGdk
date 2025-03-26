@@ -16,6 +16,7 @@ if (app.Environment.IsDevelopment())
 	app.MapGrpcReflectionService();
 }
 
+app.UseHttpsRedirection();
 app.UseZeroGdk();
 /*
 app.AddStartupWorld(new CreateWorldRequest

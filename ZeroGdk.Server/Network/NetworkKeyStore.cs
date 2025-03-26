@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
-using ZeroGdk.Core.Network;
+using ZeroGdk.Client.Network;
 using ZeroGdk.Server.Grpc;
 
 namespace ZeroGdk.Server.Network

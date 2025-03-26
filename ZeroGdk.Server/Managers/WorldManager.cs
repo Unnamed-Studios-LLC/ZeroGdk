@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
-using ZeroGdk.Core.Data;
+using ZeroGdk.Client.Data;
 
 namespace ZeroGdk.Server
 {
@@ -13,7 +13,7 @@ namespace ZeroGdk.Server
 		private readonly IServiceProvider _serviceProvider;
 		private readonly List<World> _worldList = [];
 		private readonly object _worldLock = new();
-		private readonly Dictionary<uint, World> _worldMap = [];
+		private readonly Dictionary<int, World> _worldMap = [];
 
 		public WorldManager(IServiceProvider serviceProvider,
 			ExternalOptions externalOptions)
@@ -26,7 +26,7 @@ namespace ZeroGdk.Server
 		/// Constructs a new <see cref="World"/> using root services
 		/// </summary>
 		/// <returns>Newly created <see cref="World"/></returns>
-		public World CreateWorld(uint worldId, string factoryRoute)
+		public World CreateWorld(int worldId, string factoryRoute)
 		{
 			return new World(
 				worldId,
@@ -43,7 +43,7 @@ namespace ZeroGdk.Server
 		/// </summary>
 		/// <param name="worldId">ID of the <see cref="World"/> to get</param>
 		/// <returns><see cref="World"/> with the ID of <paramref name="worldId"/></returns>
-		public World? GetWorld(uint worldId)
+		public World? GetWorld(int worldId)
 		{
 			lock (_worldLock)
 			{
@@ -70,7 +70,7 @@ namespace ZeroGdk.Server
 		/// </summary>
 		/// <param name="worldId">ID of the <see cref="World"/> to remove</param>
 		/// <returns><see cref="World"/> removed by ID, null if no world found</returns>
-		public World? RemoveWorld(uint worldId)
+		public World? RemoveWorld(int worldId)
 		{
 			lock (_worldLock)
 			{
@@ -117,7 +117,7 @@ namespace ZeroGdk.Server
 		/// <param name="worldId">ID of the <see cref="World"/> to get</param>
 		/// <param name="world"><see cref="World"/> with the given ID, if found</param>
 		/// <returns>If the <see cref="World"/> was found with the given ID</returns>
-		public bool TryGetWorld(uint worldId, [MaybeNullWhen(false)] out World world)
+		public bool TryGetWorld(int worldId, [MaybeNullWhen(false)] out World world)
 		{
 			lock (_worldLock)
 			{

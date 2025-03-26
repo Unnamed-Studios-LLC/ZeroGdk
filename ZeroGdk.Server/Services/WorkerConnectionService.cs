@@ -10,7 +10,6 @@ using ZeroGdk.Server.Routing;
 
 namespace ZeroGdk.Server.Services
 {
-	[Authorize]
 	internal class WorkerConnectionService(NetworkKeyStore networkKeyStore,
 		FirewallQueue firewallQueue,
 		IOptions<NetworkOptions> networkOptions,

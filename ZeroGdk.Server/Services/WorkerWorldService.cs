@@ -5,7 +5,6 @@ using ZeroGdk.Server.Queues;
 
 namespace ZeroGdk.Server.Services
 {
-	[Authorize]
 	internal sealed class WorkerWorldService(WorldQueue worldQueue) : WorkerWorld.WorkerWorldBase
 	{
 		private readonly WorldQueue _worldQueue = worldQueue;

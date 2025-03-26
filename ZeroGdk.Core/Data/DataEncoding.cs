@@ -7,11 +7,13 @@ namespace ZeroGdk.Core.Data
 	public sealed class DataEncoding
 	{
 		private readonly DataType[] _types;
+		private readonly DataHandler[] _handlers;
 		private readonly Dictionary<Type, DataType> _encodingMap;
 
 		internal DataEncoding(IEnumerable<DataType> types)
 		{
 			_types = types.ToArray();
+			_handlers = types.Select(x => x.Handler).ToArray();
 			Sizes = new int[_types.Length];
 			_encodingMap = _types.ToDictionary(x => x.Type);
 
@@ -69,6 +71,24 @@ namespace ZeroGdk.Core.Data
 
 			dataType = null;
 			return false;
+		}
+
+		/// <summary>
+		/// Attempts to retrieve a <see cref="DataHandler"/> by its indexed ID.
+		/// </summary>
+		/// <param name="id">The <see cref="byte"/> ID associated with the <see cref="DataHandler"/>.</param>
+		/// <param name="dataType">When this method returns, contains the <see cref="DataHandler"/> if found; otherwise, <c>null</c>.</param>
+		/// <returns><c>true</c> if a <see cref="DataHandler"/> was found at the specified <paramref name="id"/>; otherwise, <c>false</c>.</returns>
+		internal bool TryGetHandler(byte id, out DataHandler dataHandler)
+		{
+			if (id >= _handlers.Length)
+			{
+				dataHandler = null;
+				return false;
+			}
+
+			dataHandler = _handlers[id];
+			return true;
 		}
 	}
 }

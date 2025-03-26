@@ -22,5 +22,9 @@
 		/// The maximum number of pending TCP connections the server will allow in the backlog queue.
 		/// </summary>
 		public int ListenBacklog { get; set; } = 50;
+		/// <summary>
+		/// The amount of millisends between sending pings to connections
+		/// </summary>
+		public int PingIntervalMs { get; set; } = 5_000;
 	}
 }

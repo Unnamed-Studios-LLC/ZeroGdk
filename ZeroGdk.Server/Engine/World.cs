@@ -1,12 +1,11 @@
 ﻿using Arch.Core;
-using Arch.Core.External;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
-using ZeroGdk.Core;
-using ZeroGdk.Core.Data;
-using EntityData = ZeroGdk.Core.Data.EntityData;
+using ZeroGdk.Client;
+using ZeroGdk.Client.Data;
+using EntityData = ZeroGdk.Client.Data.EntityData;
 
 namespace ZeroGdk.Server
 {
@@ -19,7 +18,7 @@ namespace ZeroGdk.Server
 		//private int _systemUpdateIndex = 0; // part of remove logic
 		private readonly Dictionary<int, EntityData> _entityDataMap = [];
 
-		internal World(uint worldId,
+		internal World(int worldId,
 			string factoryRoute,
 			IServiceProvider serviceProvider,
 			ILogger<World> logger,
@@ -48,7 +47,7 @@ namespace ZeroGdk.Server
 		/// <summary>
 		/// The globally unique identifier assigned to this world instance.
 		/// </summary>
-		public uint WorldId { get; }
+		public int WorldId { get; }
 
 		/// <summary>
 		/// The Arch-based entity-component storage and processing system associated with this world.
@@ -475,7 +474,7 @@ namespace ZeroGdk.Server
 		{
 			if (!_entityDataMap.TryGetValue(entityId, out var entityData))
 			{
-				entityData = new();
+				entityData = new(entityId);
 				_entityDataMap.Add(entityId, entityData);
 			}
 			return entityData;

@@ -1,11 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\ZeroGdk.Core\ZeroGdk.Core.csproj" />
+  <PropertyGroup>
+    <PackageId>ZeroGdk.Client</PackageId>
+    <VersionPrefix>1.0</VersionPrefix>
+    <Authors>Tucker Ulrich</Authors>
+    <Company>Unnamed Studios, LLC</Company>
+    <Product>ZeroGdk</Product>
+    <Copyright>2022 Unnamed Studios, LLC</Copyright>
+    <Description>A lightweight C# library that seamlessly connects to ZeroGdk servers, offering robust connection management and real-time entity networking for game development.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/Unnamed-Studios-LLC/ZeroGdk.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="System.Buffers" Version="4.6.1" />
+    <PackageReference Include="System.Memory" Version="4.6.2" />
   </ItemGroup>
 
 </Project>

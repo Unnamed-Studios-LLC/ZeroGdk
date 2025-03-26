@@ -5,10 +5,12 @@ namespace ZeroGdk.Core.Network
 {
 	internal interface INetworkClient
 	{
-		bool Connected { get; }
+		ConnectionState State { get; }
 		IPEndPoint RemoteEndPoint { get; }
+		NetworkErrorCodes Errors { get; }
 
 		void Close();
+		void Connect(IPEndPoint remoteEndPoint);
 		void Receive(List<NetworkBuffer> receiveList);
 		void Send(NetworkBuffer buffer);
 		void StartReceive();

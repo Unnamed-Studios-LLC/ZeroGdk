@@ -35,7 +35,7 @@ namespace ZeroGdk.Core.Data
 
 			if (dataHandler is IDataHandler<T> typedHandler)
 			{
-				typedHandler.HandleData(in data);
+				return typedHandler.HandleData(in data);
 			}
 			return true;
 		}
@@ -51,7 +51,7 @@ namespace ZeroGdk.Core.Data
 
 			if (dataHandler is IDataSpanHandler<T> typedHandler)
 			{
-				typedHandler.HandleData(new ReadOnlySpan<T>(data, length));
+				return typedHandler.HandleData(new ReadOnlySpan<T>(data, length));
 			}
 			return true;
 		}
@@ -67,7 +67,7 @@ namespace ZeroGdk.Core.Data
 
 			if (dataHandler is IDataHandler<T> typedHandler)
 			{
-				typedHandler.HandleData(in *data);
+				return typedHandler.HandleData(in *data);
 			}
 			return true;
 		}
@@ -83,7 +83,7 @@ namespace ZeroGdk.Core.Data
 
 			if (dataHandler is IDataSpanHandler<T> typedHandler)
 			{
-				typedHandler.HandleData(new ReadOnlySpan<T>(data, length));
+				return typedHandler.HandleData(new ReadOnlySpan<T>(data, length));
 			}
 			return true;
 		}

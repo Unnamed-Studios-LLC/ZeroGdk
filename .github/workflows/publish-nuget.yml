@@ -1,0 +1,43 @@
+name: Pack ZeroGdk Libraries
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  pack:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          - ZeroGdk.Client/ZeroGdk.Client.csproj
+          - ZeroGdk.Server/ZeroGdk.Server.csproj
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '6.0.x'  # Adjust as needed
+
+      - name: Restore Dependencies
+        run: dotnet restore ${{ matrix.project }}
+
+      - name: Build Project
+        run: dotnet build ${{ matrix.project }} --configuration Release --no-restore
+
+      - name: Compute Package Version
+        id: compute_version
+        run: |
+          # Extract the VersionPrefix (expects format major.minor, e.g., 1.2)
+          VERSION_PREFIX=$(grep '<VersionPrefix>' ${{ matrix.project }} | sed -E 's/.*>([0-9]+\.[0-9]+)<.*/\1/')
+          PATCH=${GITHUB_RUN_NUMBER}
+          VERSION="${VERSION_PREFIX}.${PATCH}"
+          echo "Computed version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Pack Project
+        run: dotnet pack ${{ matrix.project }} --configuration Release --no-build /p:PackageVersion=${{ steps.compute_version.outputs.version }} -o ./nupkg

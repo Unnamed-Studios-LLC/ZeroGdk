@@ -7,42 +7,50 @@ namespace ZeroGdk.Core.Data
 		public DataWriter EventWriter;
 		public DataWriter PersistentWriter;
 		public DataWriter PersistentChangeWriter;
-		public long Tick;
 
-		public void ClearOneOff(long tick)
+		private long _version;
+
+		public EntityData(int entityId)
 		{
-			if (Tick == tick)
+			EntityId = entityId;
+		}
+
+		public int EntityId { get; set; }
+
+		public void ClearOneOff(long version)
+		{
+			if (_version == version)
 			{
 				return;
 			}
 
 			EventWriter.Clear();
 			PersistentChangeWriter.Clear();
-			Tick = tick;
+			_version = version;
 		}
 
-		public void WriteEvent<T>(long tick, DataType<T> dataType, in T data) where T : unmanaged
+		public void WriteEvent<T>(long version, DataType<T> dataType, in T data) where T : unmanaged
 		{
-			ClearOneOff(tick);
+			ClearOneOff(version);
 			EventWriter.WriteEvent(dataType, in data);
 		}
 
-		public void WriteEvent<T>(long tick, DataType<T> dataType, in ReadOnlySpan<T> data) where T : unmanaged
+		public void WriteEvent<T>(long version, DataType<T> dataType, in ReadOnlySpan<T> data) where T : unmanaged
 		{
-			ClearOneOff(tick);
+			ClearOneOff(version);
 			EventWriter.WriteEvent(dataType, in data);
 		}
 
-		public void WritePersistentChange<T>(long tick, DataType<T> dataType, in T data, int[] dataSizes) where T : unmanaged
+		public void WritePersistentChange<T>(long version, DataType<T> dataType, in T data, int[] dataSizes) where T : unmanaged
 		{
-			ClearOneOff(tick);
+			ClearOneOff(version);
 			PersistentWriter.WritePersistent(dataType, in data, dataSizes);
 			PersistentChangeWriter.WritePersistent(dataType, in data, dataSizes);
 		}
 
-		public void WritePersistentChange<T>(long tick, DataType<T> dataType, in ReadOnlySpan<T> data, int[] dataSizes) where T : unmanaged
+		public void WritePersistentChange<T>(long version, DataType<T> dataType, in ReadOnlySpan<T> data, int[] dataSizes) where T : unmanaged
 		{
-			ClearOneOff(tick);
+			ClearOneOff(version);
 			PersistentWriter.WritePersistent(dataType, in data, dataSizes);
 			PersistentChangeWriter.WritePersistent(dataType, in data, dataSizes);
 		}

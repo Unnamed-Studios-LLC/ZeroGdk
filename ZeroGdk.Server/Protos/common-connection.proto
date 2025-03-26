@@ -18,7 +18,7 @@ enum ConnectionResult {
 
 message OpenConnectionRequest {
 	string route = 1;
-	uint32 world_id = 2;
+	int32 world_id = 2;
 	string connection_id = 3;
 	string client_ip = 4;
 	bool bypass_max = 5;

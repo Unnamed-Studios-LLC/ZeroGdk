@@ -44,9 +44,22 @@ namespace ZeroGdk.Core.Blit
             *valuePointer = (T*)(_buffer + _count);
             _count += sizeof(T);
             return true;
-        }
+		}
 
-        public void Seek(int offset)
+		public bool Read<T>(out T value) where T : unmanaged
+		{
+			if (!CanContinue(sizeof(T)))
+			{
+                value = default;
+				return false;
+			}
+
+			value = *(T*)(_buffer + _count);
+			_count += sizeof(T);
+			return true;
+		}
+
+		public void Seek(int offset)
         {
             _count = offset;
         }

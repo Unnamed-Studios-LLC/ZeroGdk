@@ -7,6 +7,20 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>ZeroGdk.Server</PackageId>
+    <VersionPrefix>1.0</VersionPrefix>
+    <Authors>Tucker Ulrich</Authors>
+    <Company>Unnamed Studios, LLC</Company>
+    <Product>ZeroGdk</Product>
+    <Copyright>2022 Unnamed Studios, LLC</Copyright>
+    <Description>A high-performance C# library that powers the server side of the ZeroGdk framework, offering advanced connection management, an Arch-based ECS, and real-time entity networking for scalable multiplayer game servers.</Description>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/Unnamed-Studios-LLC/ZeroGdk.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
@@ -21,7 +35,7 @@
   
   <ItemGroup>
     <ProjectReference Include="..\Library\Arch\src\Arch\Arch.csproj" />
-    <ProjectReference Include="..\ZeroGdk.Core\ZeroGdk.Core.csproj" />
+    <ProjectReference Include="..\ZeroGdk.Client\ZeroGdk.Client.csproj" />
   </ItemGroup>
 
 </Project>

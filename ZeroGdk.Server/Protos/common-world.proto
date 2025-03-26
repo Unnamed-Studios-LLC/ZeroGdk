@@ -18,17 +18,17 @@ enum WorldResult {
 
 message CreateWorldRequest {
 	string route = 1;
-	uint32 world_id = 2;
+	int32 world_id = 2;
 	google.protobuf.Any data = 3;
 }
 
 message CreateWorldResponse {
 	WorldResult result = 1;
-	uint32 world_id = 2;
+	int32 world_id = 2;
 }
 
 message DestroyWorldRequest {
-	uint32 world_id = 1;
+	int32 world_id = 1;
 }
 
 message DestroyWorldResponse {

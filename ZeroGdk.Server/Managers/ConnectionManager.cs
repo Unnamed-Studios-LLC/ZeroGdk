@@ -1,19 +1,17 @@
-﻿using Arch.Core.External;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using System.Net;
+using ZeroGdk.Client.Network;
 using ZeroGdk.Server.Queues;
 
 namespace ZeroGdk.Server
 {
 	internal sealed class ConnectionManager(WorldManager worldManager,
 		ILogger<ConnectionManager> logger,
-		ConnectionQueue connectionQueue,
-		ExternalOptions externalOptions)
+		ConnectionQueue connectionQueue)
 	{
 		private readonly WorldManager _worldManager = worldManager;
 		private readonly ILogger<ConnectionManager> _logger = logger;
 		private readonly ConnectionQueue _connectionQueue = connectionQueue;
-		private readonly ExternalOptions _externalOptions = externalOptions;
 		private readonly List<Connection> _connections = [];
 		private readonly List<Connection> _pendingConnections = [];
 		private readonly Dictionary<IPAddress, List<Connection>> _ipEndPointMap = [];
@@ -52,7 +50,7 @@ namespace ZeroGdk.Server
 			for (int i = 0; i < _connections.Count; i++)
 			{
 				var connection = _connections[i];
-				if (!connection.Connected)
+				if (connection.State != ConnectionState.Connected)
 				{
 					_connectionQueue.Destroy(connection);
 					_connections.RemoveAt(i);

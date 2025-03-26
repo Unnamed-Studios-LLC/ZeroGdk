@@ -1,7 +1,10 @@
 ﻿using Arch.Core;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
-using ZeroGdk.Core.Network;
+using ZeroGdk.Client;
+using ZeroGdk.Client.Data;
+using ZeroGdk.Client.Handlers;
+using ZeroGdk.Client.Network;
 using ZeroGdk.Server.View;
 
 namespace ZeroGdk.Server
@@ -20,13 +23,16 @@ namespace ZeroGdk.Server
 		/// <param name="request">The request containing the initial connection information.</param>
 		internal Connection(INetworkClient networkClient,
 			IServiceProvider services,
-			OpenConnectionRequest request)
+			OpenConnectionRequest request,
+			DataEncoding encoding,
+			ConnectionOptions connectionOptions)
 		{
 			_networkClient = networkClient;
 			Services = services;
 			OpenRequest = request;
 			TargetWorldId = request.WorldId;
 			Id = request.ConnectionId;
+			NetworkEngine = new NetworkEngine(connectionOptions.SendBufferSize, connectionOptions.ReceiveBufferSize, encoding, connectionOptions.PingIntervalMs, connectionOptions.MaxRemoteReceivedQueueSize);
 		}
 
 		/// <summary>
@@ -52,9 +58,9 @@ namespace ZeroGdk.Server
 		public IServiceProvider Services { get; }
 
 		/// <summary>
-		/// Gets a value indicating whether the connection is currently active.
+		/// Gets a value indicating the connection state.
 		/// </summary>
-		public bool Connected => _networkClient.Connected;
+		public ConnectionState State => _networkClient.State;
 
 		/// <summary>
 		/// Gets the remote endpoint of the connection.
@@ -66,30 +72,76 @@ namespace ZeroGdk.Server
 		/// </summary>
 		internal OpenConnectionRequest OpenRequest { get; }
 
-		internal uint TargetWorldId { get; set; } = 0;
-
-		internal ushort BatchId { get; set; } = 0;
-
-		internal byte ViewVersion { get; set; } = 0;
-
-		internal EntityLists ViewEntities { get; } = new();
-
-		internal List<ViewQuery> ViewQueries { get; } = [];
+		internal int TargetWorldId { get; set; } = 0;
 
 		internal List<NetworkBuffer> ReceiveList { get; } = [];
 
-		internal string LogName => Name ?? RemoteEndPoint.ToString();
+		internal NetworkEngine NetworkEngine { get; }
 
-		public void AddViewQuery<T>() where T : ViewQuery
+		internal EntityLists ViewEntities { get; } = new();
+
+		internal List<IViewQuery> ViewQueries { get; } = [];
+
+		public void AddReceiveHandler<T>() where T : INetworkHandler
 		{
-			var viewQuery = Services.GetRequiredService<T>();
+			var networkHandler = CreateService<T>();
+			AddReceiveHandler(networkHandler);
+		}
+
+		public void AddReceiveHandler<T>(T networkHandler) where T : INetworkHandler
+		{
+			ArgumentNullException.ThrowIfNull(networkHandler);
+			NetworkEngine.AddReceiveHandler(networkHandler);
+		}
+
+		public void AddRemoteReceivedHandler<T>() where T : INetworkHandler
+		{
+			var networkHandler = CreateService<T>();
+			AddRemoteReceivedHandler(networkHandler);
+		}
+
+		public void AddRemoteReceivedHandler<T>(T networkHandler) where T : INetworkHandler
+		{
+			ArgumentNullException.ThrowIfNull(networkHandler);
+			NetworkEngine.AddRemoteReceivedHandler(networkHandler);
+		}
+
+		public void AddViewQuery<T>() where T : IViewQuery
+		{
+			var viewQuery = CreateService<T>();
 			AddViewQuery(viewQuery);
 		}
 
-		public void AddViewQuery<T>(T viewQuery) where T : ViewQuery
+		public void AddViewQuery<T>(T viewQuery) where T : IViewQuery
 		{
 			ArgumentNullException.ThrowIfNull(viewQuery);
 			ViewQueries.Add(viewQuery);
+		}
+
+		public override string ToString()
+		{
+			return Name ?? RemoteEndPoint.ToString();
+		}
+
+		internal T CreateService<T>()
+		{
+			var type = typeof(T);
+			var created = ActivatorUtilities.CreateInstance(Services, type, this);
+			if (created is not T typed)
+			{
+				throw new InvalidOperationException($"Unable to create InputHandler of type '{type.FullName}'");
+			}
+			return typed;
+		}
+
+		/// <summary>
+		/// Disposes the connection, closing the underlying network client and resetting its state.
+		/// </summary>
+		internal void Dispose()
+		{
+			World = null;
+			Entity = Entity.Null;
+			_networkClient.Close();
 		}
 
 		/// <summary>
@@ -115,16 +167,6 @@ namespace ZeroGdk.Server
 		internal void Start()
 		{
 			_networkClient.StartReceive();
-		}
-
-		/// <summary>
-		/// Disposes the connection, closing the underlying network client and resetting its state.
-		/// </summary>
-		internal void Dispose()
-		{
-			World = null;
-			Entity = Entity.Null;
-			_networkClient.Close();
 		}
 	}
 }

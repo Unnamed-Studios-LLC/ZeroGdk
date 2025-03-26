@@ -6,7 +6,7 @@ namespace ZeroGdk.Core.Data
 {
 	internal unsafe struct DataWriter
 	{
-		private const byte SpanFlag = 0xff;
+		public const byte SpanFlag = 0xff;
 
 		private const int MinCapacity = 32;
 
@@ -112,7 +112,7 @@ namespace ZeroGdk.Core.Data
 			EnsureData(newSize);
 
 			// write to buffer
-			fixed (byte* pBuffer = &Data[BytesWritten])
+			fixed (byte* pBuffer = &Data[dataPosition])
 			{
 				// write id
 				*pBuffer = dataType.Id;
@@ -169,7 +169,7 @@ namespace ZeroGdk.Core.Data
 			}
 
 			// write to buffer
-			fixed (byte* pBuffer = &Data[BytesWritten])
+			fixed (byte* pBuffer = &Data[dataPosition])
 			{
 				// write span flag
 				*pBuffer = SpanFlag;

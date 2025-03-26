@@ -2,6 +2,6 @@
 {
 	public interface IDataHandler<T>
 	{
-		void HandleData(in T data);
+		bool HandleData(in T data);
 	}
 }

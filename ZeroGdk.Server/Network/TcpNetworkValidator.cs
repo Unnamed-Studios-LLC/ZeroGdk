@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
-using ZeroGdk.Core.Network;
+using ZeroGdk.Client;
+using ZeroGdk.Client.Data;
+using ZeroGdk.Client.Network;
 using ZeroGdk.Server.Queues;
 
 namespace ZeroGdk.Server.Network
@@ -9,7 +11,9 @@ namespace ZeroGdk.Server.Network
 	internal sealed class TcpNetworkValidator(NetworkKeyStore networkKeyStore,
 		IOptions<NetworkOptions> networkOptions,
 		ConnectionQueue connectionQueue,
-		IServiceProvider serviceProvider) : IExpire
+		IServiceProvider serviceProvider,
+		DataEncoding encoding,
+		IOptions<ConnectionOptions> connectionOptions) : IExpire
 	{
 		private class PendingSocket(Socket socket, DateTime ttlUtc, SocketAsyncEventArgs args)
 		{
@@ -23,6 +27,8 @@ namespace ZeroGdk.Server.Network
 		private readonly NetworkOptions _networkOptions = networkOptions.Value;
 		private readonly ConnectionQueue _connectionQueue = connectionQueue;
 		private readonly IServiceProvider _serviceProvider = serviceProvider;
+		private readonly DataEncoding _encoding = encoding;
+		private readonly ConnectionOptions _connectionOptions = connectionOptions.Value;
 		private readonly HashSet<PendingSocket> _pendingSockets = [];
 		private readonly ConcurrentQueue<PendingSocket> _ttlQueue = [];
 		private readonly Stack<SocketAsyncEventArgs> _argsCache = [];
@@ -192,8 +198,8 @@ namespace ZeroGdk.Server.Network
 				return;
 			}
 
-			var networkClient = new TcpNetworkClient(pendingSocket.Socket);
-			var connection = new Connection(networkClient, _serviceProvider, request);
+			var networkClient = new TcpNetworkClient(pendingSocket.Socket, _connectionOptions.MaxReceiveQueueSize, _connectionOptions.ReceiveBufferSize);
+			var connection = new Connection(networkClient, _serviceProvider, request, _encoding, _connectionOptions);
 			_connectionQueue.Create(connection);
 		}
 

@@ -6,8 +6,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
 using System.Runtime.InteropServices;
-using ZeroGdk.Core;
+using ZeroGdk.Client;
 using ZeroGdk.Server.HostedServices;
+using ZeroGdk.Server.Managers;
 using ZeroGdk.Server.Network;
 using ZeroGdk.Server.Options;
 using ZeroGdk.Server.Queues;
@@ -38,13 +39,14 @@ namespace ZeroGdk.Server
 			//== Register
 
 			// add options
+			builder.Services.Configure<ConnectionOptions>(builder.Configuration.GetSection("Connection"));
 			builder.Services.Configure<ConnectionFactoryOptions>(builder.Configuration.GetSection("ConnectionFactory"));
 			builder.Services.Configure<EntitiesOptions>(builder.Configuration.GetSection("Entities"));
 			builder.Services.Configure<NetworkOptions>(builder.Configuration.GetSection("Network"));
 			builder.Services.Configure<ServerOptions>(builder.Configuration.GetSection("Server"));
-			builder.ConfigureStartupOptions();
 			builder.Services.Configure<TimingOptions>(builder.Configuration.GetSection("Timing"));
 			builder.Services.Configure<WorldFactoryOptions>(builder.Configuration.GetSection("WorldFactory"));
+			builder.ConfigureStartupOptions();
 			builder.Services.AddSingleton<ExternalOptions>();
 
 			// add timing
@@ -52,7 +54,9 @@ namespace ZeroGdk.Server
 
 			// add managers
 			builder.Services.AddSingleton<ConnectionManager>();
+			builder.Services.AddSingleton<NetworkManager>();
 			builder.Services.AddSingleton<WorldManager>();
+			builder.Services.AddSingleton<ViewManager>();
 
 			// add factories
 			builder.Services.AddFactories<Connection>();
@@ -109,8 +113,6 @@ namespace ZeroGdk.Server
 		/// <param name="app">The <see cref="WebApplication"/> to configure.</param>
 		public static void UseZeroGdk(this WebApplication app)
 		{
-			app.UseHttpsRedirection();
-
 			// map gRPC
 			app.MapGrpcService<WorkerConnectionService>();
 			app.MapGrpcService<WorkerWorldService>();
