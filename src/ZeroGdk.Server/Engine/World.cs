@@ -53,6 +53,16 @@ namespace ZeroGdk.Server
 		public int WorldId { get; }
 
 		/// <summary>
+		/// Gets or sets the name of the world.
+		/// </summary>
+		public string? Name { get; set; }
+
+		/// <summary>
+		/// Gets or sets the associated entity for this world.
+		/// </summary>
+		public Entity Entity { get; set; } = Entity.Null;
+
+		/// <summary>
 		/// The Arch-based entity-component storage and processing system associated with this world.
 		/// </summary>
 		public Entities Entities { get; private set; }
