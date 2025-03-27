@@ -13,8 +13,8 @@ A high-performance C# client-server library powering live multiplayer games. Off
 To start check out our [documentation](https://unnamed-studios-llc.github.io/zerogdk)!
 
 # Features
-- Definable World & Client factories for async creation/destruction
-- World-World or Api-World messaging
+- World & Client factories for custom async creation/destruction
+- Global World messaging
 - Client's View management via ViewQueries
-- Automatic Entity networking for Persistent or Event data
-- Game tick & systems updates
+- Entity Networking for Persistent and Event data
+- Game world tick & systems updates
