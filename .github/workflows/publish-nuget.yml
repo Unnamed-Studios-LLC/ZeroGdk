@@ -1,4 +1,4 @@
-name: Build, Test, and Pack ZeroGdk Libraries
+name: Build, Test, Pack & Publish ZeroGdk Libraries
 
 on:
   push:
@@ -16,7 +16,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '6.0.x'
 
       - name: Restore Dependencies
         run: dotnet restore
@@ -27,7 +27,7 @@ jobs:
       - name: Run Tests
         run: dotnet test --configuration Release --no-build
 
-  pack:
+  pack_and_publish:
     runs-on: ubuntu-latest
     needs: test
     strategy:
@@ -42,7 +42,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '6.0.x'
 
       - name: Restore Dependencies
         run: dotnet restore ${{ matrix.project }}
@@ -62,3 +62,6 @@ jobs:
 
       - name: Pack Project
         run: dotnet pack ${{ matrix.project }} --configuration Release --no-build /p:PackageVersion=${{ steps.compute_version.outputs.version }} -o ./nupkg
+
+      - name: Publish Package to NuGet
+        run: dotnet nuget push ./nupkg/*.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
