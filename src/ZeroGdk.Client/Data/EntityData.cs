@@ -17,6 +17,14 @@ namespace ZeroGdk.Client.Data
 
 		public int EntityId { get; set; }
 
+		public void Clear()
+		{
+			_version = 0;
+			EventWriter.Clear();
+			PersistentWriter.Clear();
+			PersistentChangeWriter.Clear();
+		}
+
 		public void ClearOneOff(long version)
 		{
 			if (_version == version)
@@ -27,6 +35,16 @@ namespace ZeroGdk.Client.Data
 			EventWriter.Clear();
 			PersistentChangeWriter.Clear();
 			_version = version;
+		}
+
+		public bool TryReadPersistent<T>(DataType<T> dataType, int[] dataSizes, out T data) where T : unmanaged
+		{
+			return PersistentWriter.TryRead(dataType, dataSizes, out data);
+		}
+
+		public bool TryReadPersistent<T>(DataType<T> dataType, int[] dataSizes, Span<T> dataSpan, out ushort length) where T : unmanaged
+		{
+			return PersistentWriter.TryRead(dataType, dataSizes, dataSpan, out length);
 		}
 
 		public void WriteEvent<T>(long version, DataType<T> dataType, in T data) where T : unmanaged

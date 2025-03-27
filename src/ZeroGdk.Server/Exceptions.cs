@@ -16,4 +16,9 @@ namespace ZeroGdk.Server
 	{
 
 	}
+
+	public sealed class DataNotFound(Type dataType) : Exception($"Data type '{dataType.FullName}' not found.")
+	{
+		public Type DataType { get; } = dataType;
+	}
 }

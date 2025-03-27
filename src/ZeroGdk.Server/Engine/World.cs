@@ -2,13 +2,16 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
 using ZeroGdk.Client;
 using ZeroGdk.Client.Data;
 using EntityData = ZeroGdk.Client.Data.EntityData;
 
 namespace ZeroGdk.Server
 {
+	/// <summary>
+	/// Represents a simulation world on the server, managing clients, systems, and entity data.
+	/// Provides mechanisms for handling persistent data, event propagation, and system management.
+	/// </summary>
 	public sealed class World
 	{
 		private readonly ILogger<World> _logger;
@@ -112,6 +115,71 @@ namespace ZeroGdk.Server
 
 			system.World = this;
 			_systems.Add(system);
+		}
+
+		/// <summary>
+		/// Retrieves persistent network data for the specified entity.
+		/// </summary>
+		/// <typeparam name="T">The unmanaged data type to retrieve.</typeparam>
+		/// <param name="entity">The target entity.</param>
+		/// <returns>The persistent data of type <typeparamref name="T"/> associated with the entity.</returns>
+		/// <exception cref="DataNotRegisteredException">Thrown if the data type is not registered.</exception>
+		/// <exception cref="EntityNotFoundException">Thrown if the entity is not valid or alive.</exception>
+		/// <exception cref="DataNotFound">Thrown if the persistent data is not found.</exception>
+		public T GetPersistent<T>(Entity entity) where T : unmanaged
+		{
+			if (!_dataEncoding.TryGetType<T>(out var dataType))
+			{
+				throw new DataNotRegisteredException(typeof(T));
+			}
+
+			if (!Entities.IsAlive(entity))
+			{
+				throw new EntityNotFoundException(entity);
+			}
+
+			var entityData = GetOrCreateData(entity.Id);
+			lock (entityData)
+			{
+				if (!entityData.TryReadPersistent(dataType, _dataEncoding.Sizes, out var data))
+				{
+					throw new DataNotFound(typeof(T));
+				}
+				return data;
+			}
+		}
+
+		/// <summary>
+		/// Retrieves persistent network data as a span for the specified entity.
+		/// </summary>
+		/// <typeparam name="T">The unmanaged data type to retrieve.</typeparam>
+		/// <param name="entity">The target entity.</param>
+		/// <param name="dataSpan">A span where the persistent data will be written.</param>
+		/// <returns>The length of the data written to the span.</returns>
+		/// <exception cref="DataNotRegisteredException">Thrown if the data type is not registered.</exception>
+		/// <exception cref="EntityNotFoundException">Thrown if the entity is not valid or alive.</exception>
+		/// <exception cref="DataNotFound">Thrown if the persistent data is not found.</exception>
+		public ushort GetPersistent<T>(Entity entity, Span<T> dataSpan) where T : unmanaged
+		{
+			if (!_dataEncoding.TryGetType<T>(out var dataType))
+			{
+				throw new DataNotRegisteredException(typeof(T));
+			}
+
+			if (!Entities.IsAlive(entity))
+			{
+				throw new EntityNotFoundException(entity);
+			}
+
+			var entityData = GetOrCreateData(entity.Id);
+			lock (entityData)
+			{
+				if (!entityData.TryReadPersistent(dataType, _dataEncoding.Sizes, dataSpan, out var length))
+				{
+					throw new DataNotFound(typeof(T));
+				}
+				return length;
+			}
 		}
 
 		/// <summary>
@@ -414,11 +482,82 @@ namespace ZeroGdk.Server
 			}
 		}
 
+		/// <summary>
+		/// Attempts to retrieve persistent data for the specified entity.
+		/// </summary>
+		/// <typeparam name="T">The unmanaged data type to retrieve.</typeparam>
+		/// <param name="entity">The target entity.</param>
+		/// <param name="data">When this method returns, contains the persistent data if found.</param>
+		/// <returns><c>true</c> if the persistent data was successfully retrieved; otherwise, <c>false</c>.</returns>
+		/// <exception cref="DataNotRegisteredException">Thrown if the data type is not registered.</exception>
+		/// <exception cref="EntityNotFoundException">Thrown if the entity is not valid or alive.</exception>
+		public bool TryGetPersistent<T>(Entity entity, out T data) where T : unmanaged
+		{
+			if (!_dataEncoding.TryGetType<T>(out var dataType))
+			{
+				throw new DataNotRegisteredException(typeof(T));
+			}
+
+			if (!Entities.IsAlive(entity))
+			{
+				throw new EntityNotFoundException(entity);
+			}
+
+			var entityData = GetOrCreateData(entity.Id);
+			lock (entityData)
+			{
+				if (!entityData.TryReadPersistent(dataType, _dataEncoding.Sizes, out data))
+				{
+					return false;
+				}
+				return true;
+			}
+		}
+
+		/// <summary>
+		/// Attempts to retrieve persistent data as a span for the specified entity.
+		/// </summary>
+		/// <typeparam name="T">The unmanaged data type to retrieve.</typeparam>
+		/// <param name="entity">The target entity.</param>
+		/// <param name="dataSpan">A span in which the persistent data will be written.</param>
+		/// <param name="length">When this method returns, contains the length of the data written to the span.</param>
+		/// <returns><c>true</c> if the persistent data was successfully retrieved; otherwise, <c>false</c>.</returns>
+		/// <exception cref="DataNotRegisteredException">Thrown if the data type is not registered.</exception>
+		/// <exception cref="EntityNotFoundException">Thrown if the entity is not valid or alive.</exception>
+		public bool TryGetPersistent<T>(Entity entity, Span<T> dataSpan, out ushort length) where T : unmanaged
+		{
+			if (!_dataEncoding.TryGetType<T>(out var dataType))
+			{
+				throw new DataNotRegisteredException(typeof(T));
+			}
+
+			if (!Entities.IsAlive(entity))
+			{
+				throw new EntityNotFoundException(entity);
+			}
+
+			var entityData = GetOrCreateData(entity.Id);
+			lock (entityData)
+			{
+				if (!entityData.TryReadPersistent(dataType, _dataEncoding.Sizes, dataSpan, out length))
+				{
+					return false;
+				}
+				return true;
+			}
+		}
+
+		/// <summary>
+		/// Releases all resources used by the world, including disposing the entity system.
+		/// </summary>
 		internal void Dispose()
 		{
 			Entities.Dispose();
 		}
 
+		/// <summary>
+		/// Starts the world by marking it as started and invoking the start method on all registered systems.
+		/// </summary>
 		internal void Start()
 		{
 			Started = true;
@@ -435,6 +574,9 @@ namespace ZeroGdk.Server
 			}
 		}
 
+		/// <summary>
+		/// Stops the world by invoking the stop method on all registered systems.
+		/// </summary>
 		internal void Stop()
 		{
 			foreach (var system in _systems)
@@ -455,6 +597,9 @@ namespace ZeroGdk.Server
 			return _entityDataMap.TryGetValue(entityId, out entityData);
 		}
 
+		/// <summary>
+		/// Updates the world by invoking the update method on all registered systems.
+		/// </summary>
 		internal void Update()
 		{
 			foreach (var system in _systems)
@@ -470,6 +615,12 @@ namespace ZeroGdk.Server
 			}
 		}
 
+		/// <summary>
+		/// Retrieves the <see cref="EntityData"/> associated with the specified entity ID.
+		/// If no data exists, a new instance is created and stored.
+		/// </summary>
+		/// <param name="entityId">The identifier of the entity.</param>
+		/// <returns>The <see cref="EntityData"/> associated with the entity.</returns>
 		private EntityData GetOrCreateData(int entityId)
 		{
 			if (!_entityDataMap.TryGetValue(entityId, out var entityData))
@@ -480,9 +631,19 @@ namespace ZeroGdk.Server
 			return entityData;
 		}
 
+		/// <summary>
+		/// Handles the cleanup of entity data when an entity is destroyed.
+		/// Removes the entity's persistent data from the internal storage.
+		/// </summary>
+		/// <param name="entity">The entity that was destroyed.</param>
 		private void OnEntityDestroyed(in Entity entity)
 		{
-			_entityDataMap.Remove(entity.Id);
+			if (!_entityDataMap.Remove(entity.Id, out var entityData))
+			{
+				return;
+			}
+
+			entityData.Clear();
 		}
 	}
 }

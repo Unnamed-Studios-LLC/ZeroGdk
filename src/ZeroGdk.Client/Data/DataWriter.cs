@@ -25,6 +25,55 @@ namespace ZeroGdk.Client.Data
 			DataWritten = 0;
 		}
 
+		public bool TryRead<T>(DataType<T> dataType, int[] dataSizes, out T data) where T : unmanaged
+		{
+			var position = PositionOf(dataType.Id, false, dataSizes, out var size);
+			if (position < 0)
+			{
+				data = default;
+				return false;
+			}
+
+			if (dataType.Size == 0)
+			{
+				data = default;
+				return true;
+			}
+
+			// read
+			fixed (byte* pBuffer = &Data[position + 1])
+			{
+				// read data
+				data = *(T*)pBuffer;
+				return true;
+			}
+		}
+
+		public bool TryRead<T>(DataType<T> dataType, int[] dataSizes, Span<T> dataSpanOut, out ushort length) where T : unmanaged
+		{
+			var position = PositionOf(dataType.Id, true, dataSizes, out var size);
+			if (position < 0)
+			{
+				length = 0;
+				return false;
+			}
+
+			// read
+			fixed (byte* pBuffer = &Data[position + 2])
+			{
+				// read size
+				length = *(ushort*)pBuffer;
+
+				if (dataType.Size != 0)
+				{
+					// read data
+					var dataSpan = new ReadOnlySpan<T>(pBuffer + 2, Math.Min(length, dataSpanOut.Length));
+					dataSpan.CopyTo(dataSpanOut);
+				}
+				return true;
+			}
+		}
+
 		public void WriteEvent<T>(DataType<T> dataType, in T data) where T : unmanaged
 		{
 			if (DataWritten == ushort.MaxValue)
