@@ -4,7 +4,7 @@
 	/// Represents a base class for a game or simulation system that operates within a <see cref="World"/> context.
 	/// Systems can be started, stopped, and updated during the world's lifecycle.
 	/// </summary>
-	public abstract class System
+	public abstract class WorldSystem
 	{
 		/// <summary>
 		/// The world this system is currently associated with. Set when the system is added to a world.

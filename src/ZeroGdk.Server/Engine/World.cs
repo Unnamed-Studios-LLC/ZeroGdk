@@ -14,7 +14,7 @@ namespace ZeroGdk.Server
 		private readonly ILogger<World> _logger;
 		private readonly DataEncoding _dataEncoding;
 		private readonly List<Client> _clients = [];
-		private readonly List<System> _systems = [];
+		private readonly List<WorldSystem> _systems = [];
 		//private int _systemUpdateIndex = 0; // part of remove logic
 		private readonly Dictionary<int, EntityData> _entityDataMap = [];
 
@@ -75,28 +75,28 @@ namespace ZeroGdk.Server
 		internal bool Started { get; set; } = false;
 
 		/// <summary>
-		/// Registers and adds a new <see cref="System"/> instance of type <typeparamref name="T"/> created using the application services.
+		/// Registers and adds a new <see cref="WorldSystem"/> instance of type <typeparamref name="T"/> created using the application services.
 		/// Can only be called during <see cref="WorldFactory"/>.CreateAsync.
 		/// </summary>
-		/// <typeparam name="T">The type of <see cref="System"/> to add.</typeparam>
+		/// <typeparam name="T">The type of <see cref="WorldSystem"/> to add.</typeparam>
 		/// <exception cref="ArgumentNullException">Thrown if the resolved system is null.</exception>
 		/// <exception cref="WorldStartedException">Thrown if the world has already started</exception>
-		public void AddSystem<T>() where T : System
+		public void AddSystem<T>() where T : WorldSystem
 		{
 			var system = Services.GetRequiredService<T>();
 			AddSystem(system);
 		}
 
 		/// <summary>
-		/// Registers and adds the specified <see cref="System"/> instance to this world.
+		/// Registers and adds the specified <see cref="WorldSystem"/> instance to this world.
 		/// Can only be called during <see cref="WorldFactory"/>.CreateAsync.
 		/// </summary>
-		/// <typeparam name="T">The type of <see cref="System"/> to add.</typeparam>
+		/// <typeparam name="T">The type of <see cref="WorldSystem"/> to add.</typeparam>
 		/// <param name="system">The system instance to add.</param>
 		/// <exception cref="ArgumentNullException">Thrown if <paramref name="system"/> is null.</exception>
 		/// <exception cref="InvalidOperationException">Thrown if the system is already associated with a world.</exception>
 		/// <exception cref="WorldStartedException">Thrown if the world has already started.</exception>
-		public void AddSystem<T>(T system) where T : System
+		public void AddSystem<T>(T system) where T : WorldSystem
 		{
 			ArgumentNullException.ThrowIfNull(system);
 
@@ -119,12 +119,12 @@ namespace ZeroGdk.Server
 		/// from the internal collection of systems.
 		/// </summary>
 		/// <typeparam name="T">
-		/// The type of system to retrieve. Must be derived from the base <see cref="System"/> class.
+		/// The type of system to retrieve. Must be derived from the base <see cref="WorldSystem"/> class.
 		/// </typeparam>
 		/// <returns>
 		/// The first system of type <typeparamref name="T"/> found, or <c>null</c> if no matching system exists.
 		/// </returns>
-		public T? GetSystem<T>() where T : System
+		public T? GetSystem<T>() where T : WorldSystem
 		{
 			return _systems.OfType<T>().FirstOrDefault();
 		}
@@ -134,13 +134,13 @@ namespace ZeroGdk.Server
 		/// from the internal collection of systems.
 		/// </summary>
 		/// <typeparam name="T">
-		/// The type of systems to retrieve. Must be derived from the base <see cref="System"/> class.
+		/// The type of systems to retrieve. Must be derived from the base <see cref="WorldSystem"/> class.
 		/// </typeparam>
 		/// <returns>
 		/// An enumerable collection of systems of type <typeparamref name="T"/>. 
 		/// If no matching systems are found, the returned collection will be empty.
 		/// </returns>
-		public IEnumerable<T> GetSystems<T>() where T : System
+		public IEnumerable<T> GetSystems<T>() where T : WorldSystem
 		{
 			return _systems.OfType<T>();
 		}
@@ -430,7 +430,7 @@ namespace ZeroGdk.Server
 				}
 				catch (Exception e)
 				{
-					_logger.LogError(e, "An error occurred while executing '{method}' on system of type '{systemType}'", nameof(System.Start), system.GetType().FullName);
+					_logger.LogError(e, "An error occurred while executing '{method}' on system of type '{systemType}'", nameof(WorldSystem.Start), system.GetType().FullName);
 				}
 			}
 		}
@@ -445,7 +445,7 @@ namespace ZeroGdk.Server
 				}
 				catch (Exception e)
 				{
-					_logger.LogError(e, "An error occurred while executing '{method}' on system of type '{systemType}'", nameof(System.Stop), system.GetType().FullName);
+					_logger.LogError(e, "An error occurred while executing '{method}' on system of type '{systemType}'", nameof(WorldSystem.Stop), system.GetType().FullName);
 				}
 			}
 		}
@@ -465,7 +465,7 @@ namespace ZeroGdk.Server
 				}
 				catch (Exception e)
 				{
-					_logger.LogError(e, "An error occurred while executing '{method}' on system of type '{systemType}'", nameof(System.Update), system.GetType().FullName);
+					_logger.LogError(e, "An error occurred while executing '{method}' on system of type '{systemType}'", nameof(WorldSystem.Update), system.GetType().FullName);
 				}
 			}
 		}
