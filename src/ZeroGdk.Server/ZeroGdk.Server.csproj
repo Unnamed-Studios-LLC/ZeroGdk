@@ -5,6 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;EVENTS;PURE_ECS</DefineConstants>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -25,6 +26,12 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.3" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.57.0" />
+    <PackageReference Include="Arch.LowLevel" Version="1.1.3" />
+    <PackageReference Include="Collections.Pooled" Version="2.0.0-preview.27" />
+    <PackageReference Include="CommunityToolkit.HighPerformance" Version="8.2.2" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="7.0.0" />
+    <PackageReference Include="System.Runtime.CompilerServices.Unsafe" Version="6.0.0" />
+    <PackageReference Include="ZeroAllocJobScheduler" Version="1.1.2" />
   </ItemGroup>
   
   <ItemGroup>
@@ -34,8 +41,519 @@
   </ItemGroup>
   
   <ItemGroup>
-    <ProjectReference Include="..\Library\Arch\src\Arch\Arch.csproj" />
     <ProjectReference Include="..\ZeroGdk.Client\ZeroGdk.Client.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.Diagnostics" />
+    <Using Include="System.Diagnostics.CodeAnalysis" />
+    <Using Include="System.IO" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Runtime.CompilerServices" />
+    <Using Include="System.Runtime.InteropServices" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="Arch\Templates\Component.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Component.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Components.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Components.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\EntityComponents.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>EntityComponents.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Archetype.Add.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Archetype.Add.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.Create.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.Create.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.EnsureCapacity.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.EnsureCapacity.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.CreateBulk.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.CreateBulk.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.RemoveWithQueryDescription.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.RemoveWithQueryDescription.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.AddWithQueryDescription.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.AddWithQueryDescription.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.Add.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.Add.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.Remove.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.Remove.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.Set.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.Set.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.SetWithQueryDescription.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.SetWithQueryDescription.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.Has.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.Has.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.Get.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.Get.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\QueryDescription.WithAll.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>QueryDescription.WithAll.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\QueryDescription.WithAny.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>QueryDescription.WithAny.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\QueryDescription.WithExclusive.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>QueryDescription.WithExclusive.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\QueryDescription.WithNone.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>QueryDescription.WithNone.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Chunk.Index.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Chunk.Index.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Chunk.GetFirst.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Chunk.GetFirst.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Chunk.Has.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Chunk.Has.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Chunk.GetComponentRow.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Chunk.GetComponentRow.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Chunk.GetEntityComponentRow.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Chunk.GetEntityComponentRow.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Chunk.Set.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Chunk.Set.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\ForEach.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ForEach.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\ForEachWithEntity.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ForEachWithEntity.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\IForEach.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IForEach.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\IForEachWithEntity.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IForEachWithEntity.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\ForEachJob.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ForEachJob.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\ForEachWithEntityJob.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>ForEachWithEntityJob.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\IForEachJob.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IForEachJob.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\IForEachWithEntityJob.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>IForEachWithEntityJob.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Archetype.Has.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Archetype.Has.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Archetype.Get.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Archetype.Get.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Archetype.Set.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Archetype.Set.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Archetype.SetRange.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Archetype.SetRange.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.Query.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.Query.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.EntityQuery.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.EntityQuery.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.ParallelQuery.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.ParallelQuery.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.ParallelQueryWithEntity.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.ParallelQueryWithEntity.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.InlineQuery.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.InlineQuery.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.InlineQueryWithRef.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.InlineQueryWithRef.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.InlineEntityQuery.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.InlineEntityQuery.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.InlineEntityQueryWithRef.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.InlineEntityQueryWithRef.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.InlineParallelQuery.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.InlineParallelQuery.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\World.InlineParallelEntityQuery.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.InlineParallelEntityQuery.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Entity.Has.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Entity.Has.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Entity.Set.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Entity.Set.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Entity.Get.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Entity.Get.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Entity.Add.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Entity.Add.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Entity.Remove.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Entity.Remove.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Chunk.GetArray.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Chunk.GetArray.cs</LastGenOutput>
+    </None>
+    <None Update="Arch\Templates\Chunk.GetSpan.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Chunk.GetSpan.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Arch\Templates\World.CreateBulk.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>World.CreateBulk.cs</LastGenOutput>
+    </Compile>
+    <Compile Update="Arch\Templates\World.EnsureCapacity.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.EnsureCapacity.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.CreateBulk.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.CreateBulk.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.Add.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.Add.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.RemoveWithQueryDescription.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.RemoveWithQueryDescription.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.AddWithQueryDescription.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.AddWithQueryDescription.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.Remove.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.Remove.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.Set.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.Set.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.SetWithQueryDescription.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.SetWithQueryDescription.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.Get.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.Get.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\QueryDescription.WithAll.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QueryDescription.WithAll.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\QueryDescription.WithAny.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QueryDescription.WithAny.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\QueryDescription.WithExclusive.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QueryDescription.WithExclusive.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\QueryDescription.WithNone.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>QueryDescription.WithNone.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Chunk.Index.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chunk.Index.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Chunk.Has.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chunk.Has.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Chunk.GetComponentRow.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chunk.GetComponentRow.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Chunk.GetEntityComponentRow.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chunk.GetEntityComponentRow.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Chunk.Set.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chunk.Set.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Component.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Component.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Components.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Components.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\ForEach.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ForEach.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\ForEachWithEntity.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ForEachWithEntity.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\IForEach.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IForEach.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\IForEachWithEntity.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IForEachWithEntity.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\ForEachJob.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ForEachJob.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\IForEachJob.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IForEachJob.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\IForEachWithEntityJob.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>IForEachWithEntityJob.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Archetype.Has.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Archetype.Has.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Archetype.Get.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Archetype.Get.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Archetype.Set.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Archetype.Set.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Archetype.SetRange.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Archetype.SetRange.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.ParallelQuery.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.ParallelQuery.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.ParallelQueryWithEntity.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.ParallelQueryWithEntity.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.InlineQuery.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.InlineQuery.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.InlineQueryWithRef.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.InlineQueryWithRef.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.InlineEntityQuery.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.InlineEntityQuery.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.InlineEntityQueryWithRef.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.InlineEntityQueryWithRef.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.InlineParallelQuery.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.InlineParallelQuery.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.InlineParallelEntityQuery.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.InlineParallelEntityQuery.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Entity.Add.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Entity.Add.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Entity.Set.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Entity.Set.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Entity.Get.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Entity.Get.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Entity.Has.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Entity.Has.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Entity.Remove.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Entity.Remove.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Chunk.GetArray.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chunk.GetArray.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Chunk.GetFirst.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chunk.GetFirst.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\EntityComponents.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>EntityComponents.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Archetype.Add.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Archetype.Add.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\Chunk.GetSpan.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Chunk.GetSpan.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\ForEachWithEntityJob.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ForEachWithEntityJob.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.Has.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.Has.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.Create.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.Create.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.Query.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.Query.tt</DependentUpon>
+    </Compile>
+    <Compile Update="Arch\Templates\World.EntityQuery.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>World.EntityQuery.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
 
 </Project>
