@@ -9,6 +9,11 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project:
+          - src/ZeroGdk.Client/ZeroGdk.Client.csproj
+          - src/ZeroGdk.Server/ZeroGdk.Server.csproj
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
@@ -16,16 +21,16 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '8.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore ${{ matrix.project }}
 
       - name: Build Solution
-        run: dotnet build --configuration Release --no-restore
+        run: dotnet build ${{ matrix.project }} --configuration Release --no-restore
 
       - name: Run Tests
-        run: dotnet test --configuration Release --no-build
+        run: dotnet test ${{ matrix.project }} --configuration Release --no-build
 
   pack_and_publish:
     runs-on: ubuntu-latest
@@ -42,7 +47,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '6.0.x'
+          dotnet-version: '8.0.x'
 
       - name: Restore Dependencies
         run: dotnet restore ${{ matrix.project }}
