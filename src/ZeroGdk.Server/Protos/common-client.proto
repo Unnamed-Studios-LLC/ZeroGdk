@@ -1,0 +1,33 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "ZeroGdk.Server";
+
+import "google/protobuf/any.proto";
+
+package client;
+
+enum ClientResult {
+	Success = 0;
+	InternalError = 1;
+	MaxWorldClients = 2;
+	MaxWorkerClients = 3;
+	InvalidClientIpAddress = 4;
+	WorldNotFound = 5;
+	RouteNotFound = 6;
+}
+
+message OpenClientRequest {
+	string route = 1;
+	int32 world_id = 2;
+	string client_id = 3;
+	string client_ip = 4;
+	bool bypass_max = 5;
+	google.protobuf.Any data = 6;
+}
+
+message OpenClientResponse {
+	ClientResult result = 1;
+	string host = 2;
+	int32 port = 3;
+	string key = 4;
+}

@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+
+    <!--<AllowUnsafeBlocks>true</AllowUnsafeBlocks>-->
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <Configurations>Debug;Release;Release-Pure;Release-PureECS;Release-Events;Debug-PureECS;Debug-Events</Configurations>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <!--<TreatWarningsAsErrors>true</TreatWarningsAsErrors>-->
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Using Include="System" />
+    <Using Include="System.Collections" />
+    <Using Include="System.Collections.Generic" />
+    <Using Include="System.IO" />
+    <Using Include="System.Linq" />
+    <Using Include="System.Runtime.CompilerServices" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Arch\Arch.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.1.303" />
+  </ItemGroup>
+
+</Project>

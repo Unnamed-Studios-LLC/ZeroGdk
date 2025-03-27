@@ -1,0 +1,57 @@
+<#@ template language="C#" #>
+<#@ output extension=".cs" #>
+<#@ import namespace="System.Text" #>
+<#@ include file="Helpers.ttinclude" #>
+
+// TODO: Move create with T0 into world.cs?
+
+using System;
+using System.Runtime.CompilerServices;
+using CommunityToolkit.HighPerformance;
+using Arch.Core.Utils;
+
+namespace Arch.Core;
+public partial class World
+{
+<#
+    for (var index = 1; index < Amount; index++)
+    {
+        var generics = AppendGenerics(index);
+        var parameters = AppendGenericInDefaultParams(index);
+        var inParameters = InsertGenericInParams(index);
+
+        var addEvents = new StringBuilder();
+        for (var i = 0; i < index; i++)
+            addEvents.AppendLine($"OnComponentAdded<T{i}>(entity);");
+#>
+
+
+    [StructuralChange]
+    public Entity Create<<#= generics #>>(<#= parameters #>)
+    {
+        var signature = Component<<#= generics #>>.Signature;
+
+        // Create new entity and put it to the back of the array
+        GetOrCreateNextEntity(out var entity);
+
+        // Add to archetype & mapping
+        var archetype = GetOrCreate(signature);
+        var allocatedEntities = archetype.Add<<#= generics #>>(entity, out var slot, <#= inParameters #>);
+
+        // Resize map & Array to fit all potential new entities
+        Capacity += allocatedEntities;
+        EntityInfo.EnsureCapacity(Capacity);
+
+        // Map
+        EntityInfo.Add(entity.Id, archetype, slot);
+
+        OnEntityCreated(entity);
+        <#= Indent(addEvents, 8) #>
+        return entity;
+    }
+<#
+    }
+#>
+}
+
+
