@@ -6,7 +6,6 @@ using System.Net;
 using ZeroGdk.Client;
 using ZeroGdk.Client.Blit;
 using ZeroGdk.Client.Data;
-using ZeroGdk.Client.Handlers;
 using ZeroGdk.Client.Network;
 
 namespace ZeroGdk.Client

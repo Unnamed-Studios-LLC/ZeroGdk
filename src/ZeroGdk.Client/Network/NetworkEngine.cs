@@ -3,7 +3,6 @@ using System.Buffers;
 using System.Collections.Generic;
 using ZeroGdk.Client.Blit;
 using ZeroGdk.Client.Data;
-using ZeroGdk.Client.Handlers;
 using ZeroGdk.Client.Messages;
 
 namespace ZeroGdk.Client.Network
