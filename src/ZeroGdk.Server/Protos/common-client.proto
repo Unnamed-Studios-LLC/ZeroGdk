@@ -27,7 +27,6 @@ message OpenClientRequest {
 
 message OpenClientResponse {
 	ClientResult result = 1;
-	string host = 2;
-	int32 port = 3;
-	string key = 4;
+	int32 port = 2;
+	string key = 3;
 }

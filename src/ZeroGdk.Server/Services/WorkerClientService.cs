@@ -48,6 +48,7 @@ namespace ZeroGdk.Server.Services
 			return new OpenClientResponse
 			{
 				Result = ClientResult.Success,
+				Port = _networkOptions.GamePort,
 				Key = key
 			};
 		}
