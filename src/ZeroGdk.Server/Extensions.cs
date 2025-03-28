@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using ZeroGdk.Client;
 using ZeroGdk.Server.HostedServices;
@@ -34,7 +35,7 @@ namespace ZeroGdk.Server
 		/// </summary>
 		/// <param name="builder">The <see cref="WebApplicationBuilder"/> to add services to.</param>
 		/// <param name="dataBuilderAction">Optional callback to configure and register data types via a <see cref="DataBuilder"/>.</param>
-		public static void AddZeroGdk(this WebApplicationBuilder builder, Action<DataBuilder>? dataBuilderAction = null)
+		public static void AddZeroGdk(this WebApplicationBuilder builder, Action<DataBuilder>? dataBuilderAction = null, Assembly? gameAssembly = null)
 		{
 			//== Register
 
@@ -59,8 +60,8 @@ namespace ZeroGdk.Server
 			builder.Services.AddSingleton<ViewManager>();
 
 			// add factories
-			builder.Services.AddFactories<Client>();
-			builder.Services.AddFactories<World>();
+			builder.Services.AddFactories<Client>(gameAssembly);
+			builder.Services.AddFactories<World>(gameAssembly);
 
 			// add data
 			var dataBuilder = new DataBuilder();
@@ -111,15 +112,15 @@ namespace ZeroGdk.Server
 		/// Configures and maps ZeroGDK middleware, services, and endpoints into the application pipeline.
 		/// </summary>
 		/// <param name="app">The <see cref="WebApplication"/> to configure.</param>
-		public static void UseZeroGdk(this WebApplication app)
+		public static void UseZeroGdk(this WebApplication app, Assembly? gameAssembly = null)
 		{
 			// map gRPC
 			app.MapGrpcService<WorkerClientService>();
 			app.MapGrpcService<WorkerWorldService>();
 
 			// map factories
-			app.MapFactories<Client>();
-			app.MapFactories<World>();
+			app.MapFactories<Client>(gameAssembly);
+			app.MapFactories<World>(gameAssembly);
 
 			var serverOptions = app.Services.GetRequiredService<IOptions<ServerOptions>>();
 			if (serverOptions.Value.LogHeader)

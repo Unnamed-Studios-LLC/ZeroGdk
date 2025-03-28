@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ZeroGdk.Client.Handlers
+namespace ZeroGdk.Client
 {
 	public interface INetworkHandler
 	{

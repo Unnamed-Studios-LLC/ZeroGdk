@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using ZeroGdk.Server.Factories;
 using ZeroGdk.Server.Routing;
@@ -9,13 +8,13 @@ namespace ZeroGdk.Server
 {
 	internal static class FactoryExtensions
 	{
-		public static void AddFactories<T>(this IServiceCollection services)
+		public static void AddFactories<T>(this IServiceCollection services, Assembly? gameAssembly = null)
 		{
 			services.AddSingleton<RouteResolver<T>>();
 			services.AddSingleton<FactoryExecuter<T>>();
 
 			// get entry assembly (implementation)
-			var assembly = Assembly.GetEntryAssembly();
+			var assembly = gameAssembly ?? Assembly.GetEntryAssembly();
 			if (assembly == null)
 			{
 				return;
@@ -61,12 +60,12 @@ namespace ZeroGdk.Server
 			return map;
 		}
 
-		public static void MapFactories<T>(this WebApplication app)
+		public static void MapFactories<T>(this WebApplication app, Assembly? gameAssembly = null)
 		{
 			var resolver = app.Services.GetRequiredService<RouteResolver<T>>();
 
 			// get entry assembly (implementation)
-			var assembly = Assembly.GetEntryAssembly();
+			var assembly = gameAssembly ?? Assembly.GetEntryAssembly();
 			if (assembly == null)
 			{
 				return;
